@@ -1,0 +1,56 @@
+/* styles.css */
+body {
+    background-color: #f0f8ff; /* Light blue theme */
+    font-family: Arial, sans-serif;
+}
+
+h1 {
+    color: #004aad; /* Deep blue for headings */
+    text-align: center;
+    margin-top: 20px;
+}
+
+form {
+    max-width: 400px;
+    margin: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+button {
+    background-color: #1e90ff; /* Light blue */
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 10px 20px;
+    transition: background-color 0.3s ease-in-out;
+}
+
+button:hover {
+    background-color: #004aad; /* Darker blue */
+}
+
+input[type="email"],
+input[type="password"],
+input[type="text"] {
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    padding: 10px;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+p {
+    text-align: center;
+    margin-top: 10px;
+}
+
+a {
+    color: #1e90ff;
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}

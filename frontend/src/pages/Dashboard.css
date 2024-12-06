@@ -1,0 +1,127 @@
+/* Layout Structure */
+.dashboard-layout {
+  display: grid;
+  grid-template-columns: 250px auto 300px;
+  gap: 20px;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+/* Sidebar Styles */
+.sidebar {
+  background-color: #f4f4f4;
+  padding: 20px;
+  border-right: 1px solid #ccc;
+}
+.sidebar h2 {
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+}
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+.sidebar ul li {
+  margin: 10px 0;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+/* Navbar Styles */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #b4dfea;
+  padding: 10px 20px;
+  color: white;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+.navbar-buttons {
+  display: flex;
+  gap: 15px;
+}
+.navbar-buttons button {
+  background-color: #000000;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  font-size: 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+.navbar-buttons button:hover {
+  background-color: #003d82;
+  transform: scale(1.05);
+}
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.search-bar input {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 200px;
+}
+.search-bar button {
+  padding: 8px 12px;
+  background-color: #0056b3;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.search-bar button:hover {
+  background-color: #003d82;
+}
+
+/* Main Content Area */
+.main-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+.bordered-table th,
+.bordered-table td,
+.striped-table th,
+.striped-table td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: left;
+}
+.striped-table tbody tr:nth-child(odd) {
+  background-color: #f9f9f9;
+}
+
+/* Alert Messages */
+.alerts {
+  padding: 20px;
+}
+.alert {
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  color: white;
+}
+.short-alert {
+  background-color: #007bff;
+}
+.emergency-alert {
+  background-color: #dc3545;
+}
+.alert a {
+  color: #fff;
+  text-decoration: underline;
+}
