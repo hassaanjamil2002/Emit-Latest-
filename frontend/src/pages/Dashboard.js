@@ -1,5 +1,7 @@
 import React from 'react';
 import './Dashboard.css';
+import { Link } from 'react-router-dom'; // Import Link from react-router-dom
+import Navbar from '../components/navbar.js';
 
 const Dashboard = () => {
   return (
@@ -18,20 +20,7 @@ const Dashboard = () => {
 
       <div className="content-area">
         {/* Navbar */}
-        <nav className="navbar">
-          <div className="navbar-buttons">
-            <button>Dashboard</button>
-            <button>Analytics</button>
-            <button>Projects</button>
-            <button>Settings</button>
-            <button>Support</button>
-          </div>
-          <div className="search-bar">
-            <input type="text" placeholder="Search..." />
-            <button>🔍</button>
-          </div>
-        </nav>
-
+        <Navbar></Navbar>
         {/* Main Tables */}
         <main className="main-content">
           <section className="tables">
@@ -121,7 +110,9 @@ const Dashboard = () => {
           Emergency alert message. <a href="#learn-more">Learn more</a>
         </div>
       </aside>
+      
     </div>
+    
   );
 };
 

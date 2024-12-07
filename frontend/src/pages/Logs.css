@@ -1,0 +1,39 @@
+.logs-layout {
+    font-family: Arial, sans-serif;
+  }
+  
+  .logs-filters {
+    margin-bottom: 20px;
+  }
+  
+  .logs-filters .form-control,
+  .logs-filters .form-select,
+  .logs-filters .btn {
+    font-size: 0.9rem;
+  }
+  
+  .logs-table {
+    max-width: 80%; /* Make the table narrower */
+    margin: 0 auto;
+  }
+  
+  .logs-table th,
+  .logs-table td {
+    text-align: left;
+    padding: 0.75rem;
+  }
+  
+  .logs-table tbody tr:hover {
+    background-color: #f9f9f9;
+  }
+  
+  .logs-table th {
+    text-transform: uppercase;
+    font-weight: bold;
+  }
+  
+  .logs-table {
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  
