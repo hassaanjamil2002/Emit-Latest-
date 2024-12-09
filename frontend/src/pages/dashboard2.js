@@ -18,6 +18,7 @@ import BasicPie from '../components/PieChart.js';
 import BasicCard from '../components/Cards.js';
 import ConnectedPC from '../components/ConnectedPC'; // Adjust the path as needed
 import { rows as allAlerts } from './Alerts'; // Import all alerts data
+import logo1 from '../components/logo1.png';
 
 const NAVIGATION = [
   {
@@ -69,6 +70,7 @@ const demoTheme = createTheme({
     },
   },
 });
+
 function DemoPageContent() {
   return (
     <Box
@@ -175,6 +177,7 @@ function DashboardLayoutBasic(props) {
 
   const [activeSection, setActiveSection] = useState('dashboard'); // Track active section
   const demoWindow = window !== undefined ? window() : undefined;
+  const logo= logo1;
 
   // Function to handle menu item click
   const handleNavigation = (section) => {
@@ -194,6 +197,9 @@ function DashboardLayoutBasic(props) {
 
   return (
     <AppProvider
+      logo={logo1}
+      
+      
       navigation={NAVIGATION.map((item) => ({
         ...item,
         onClick: item.segment
@@ -205,6 +211,11 @@ function DashboardLayoutBasic(props) {
       }))}
       theme={demoTheme}
       window={demoWindow}
+      branding={{
+        logo: <img src={logo1} alt="Emit Logo" style={{ height: '70px', width: '50px' }} />, // Render image with styling
+        title: '', // Remove text if not needed
+      }}
+      
     >
       <DashboardLayout>{renderContent()}</DashboardLayout>
     </AppProvider>

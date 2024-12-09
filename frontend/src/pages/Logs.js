@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -6,33 +6,20 @@ import { createTheme } from '@mui/material/styles';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import NotificationImportantIcon from '@mui/icons-material/NotificationImportant';
 import BarChartIcon from '@mui/icons-material/BarChart';
-import DescriptionIcon from '@mui/icons-material/Description';
 import LayersIcon from '@mui/icons-material/Layers';
-
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { DataGridPro } from '@mui/x-data-grid-pro';
-
-// Columns and rows for the Logs table
+import axios from 'axios';
+import logo1 from '../components/logo1.png';
+// Columns for the Logs table
 const logColumns = [
   { field: 'logId', headerName: 'Log ID', width: 90 },
   { field: 'logDetail', headerName: 'Log Details', width: 600 },
   { field: 'timestamp', headerName: 'Timestamp', width: 200 },
 ];
 
-const logRows = [
-  { id: 1, logDetail: 'User login detected from IP 192.168.1.1', timestamp: '2024-12-07 08:30' },
-  { id: 2, logDetail: 'Failed login attempt on Admin account', timestamp: '2024-12-06 23:15' },
-  { id: 3, logDetail: 'Data upload started by user User123', timestamp: '2024-12-06 16:45' },
-  { id: 4, logDetail: 'File download completed: secure_document.pdf', timestamp: '2024-12-06 10:00' },
-  { id: 5, logDetail: 'Password change request initiated by user User456', timestamp: '2024-12-05 21:10' },
-  { id: 6, logDetail: 'Email sent to user User789', timestamp: '2024-12-05 14:30' },
-  { id: 7, logDetail: 'Malware scan completed on uploaded file', timestamp: '2024-12-05 11:05' },
-  { id: 8, logDetail: 'Database query executed by Admin', timestamp: '2024-12-05 09:20' },
-  { id: 9, logDetail: 'Session expired for user User123', timestamp: '2024-12-04 19:00' },
-  { id: 10, logDetail: 'New user account created: User999', timestamp: '2024-12-04 12:45' },
-];
-// Navigation structure
+// Sample NAVIGATION structure (unchanged)
 const NAVIGATION = [
   {
     kind: 'header',
@@ -59,7 +46,6 @@ const NAVIGATION = [
     segment: 'logs',
     title: 'Logs',
     icon: <BarChartIcon />,
-   
   },
   {
     segment: 'integrations',
@@ -68,6 +54,7 @@ const NAVIGATION = [
   },
 ];
 
+// Define theme for the UI
 const demoTheme = createTheme({
   cssVariables: {
     colorSchemeSelector: 'data-toolpad-color-scheme',
@@ -84,9 +71,37 @@ const demoTheme = createTheme({
   },
 });
 
+// Function to fetch logs from the server
+const fetchLogs = async () => {
+  try {
+    const response = await axios.get('http://localhost:5000/api/logs');  // Replace with actual endpoint
+    return response.data.data.affected_items;  // Assuming response is an array of logs
+  } catch (error) {
+    console.error('Error fetching logs:', error);
+    return [];  // Return empty array in case of error
+  }
+};
+
 // Function to render the Logs Table content
 function LogsContent() {
   const [pageSize, setPageSize] = useState(10);
+  const [logs, setLogs] = useState([]);
+
+  // Fetch logs when the component is mounted
+  useEffect(() => {
+    const getLogs = async () => {
+      const logsData = await fetchLogs();
+      const safeLogsData = Array.isArray(logsData) ? logsData : [];
+      const formattedLogs = await safeLogsData.map((log, index) => ({
+        id: index + 1,  // Assign unique ID for DataGridPro
+        logDetail: log.description,  // Assuming description contains the log details
+        timestamp: log.timestamp,  // Assuming timestamp is already in a suitable format
+      }));
+      setLogs(formattedLogs);
+    };
+
+    getLogs();
+  }, []);  // Empty dependency array means this runs once when component mounts
 
   return (
     <Box
@@ -110,7 +125,7 @@ function LogsContent() {
       >
         <DataGridPro
           columns={logColumns}
-          rows={logRows}
+          rows={logs}
           pageSize={pageSize}
           rowHeight={38}
           checkboxSelection
@@ -154,6 +169,10 @@ function LogsPageLayout(props) {
       navigation={NAVIGATION.map((item) => (item.segment ? { ...item, onClick: () => handleNavigation(item.segment) } : item))}
       theme={demoTheme}
       window={demoWindow}
+      branding={{
+        logo: <img src={logo1} alt="Emit Logo" style={{ height: '70px', width: '50px' }} />, // Render image with styling
+        title: '', // Remove text if not needed
+      }}
     >
       <DashboardLayout>{renderContent()}</DashboardLayout>
     </AppProvider>

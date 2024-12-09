@@ -12,7 +12,7 @@ import LayersIcon from '@mui/icons-material/Layers';
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { DataGridPro } from '@mui/x-data-grid-pro';
-
+import logo1 from '../components/logo1.png';
 // Sample data for the alerts table
 const columns = [
   { field: 'id', headerName: 'ID', width: 90 },
@@ -189,6 +189,10 @@ function AlertsPageLayout(props) {
       navigation={NAVIGATION.map((item) => (item.segment ? { ...item, onClick: () => handleNavigation(item.segment) } : item))}
       theme={demoTheme}
       window={demoWindow}
+      branding={{
+        logo: <img src={logo1} alt="Emit Logo" style={{ height: '70px', width: '50px' }} />, // Render image with styling
+        title: '', // Remove text if not needed
+      }}
     >
       <DashboardLayout>{renderContent()}</DashboardLayout>
     </AppProvider>

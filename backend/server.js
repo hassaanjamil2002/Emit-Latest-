@@ -3,24 +3,28 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const userRoutes = require('./routes/userRoutes');
+const logsT = require('./routes/logs.js'); // Import the Wazuh logs route
+const agentsRoutes= require('./routes/agents.js');
 
 dotenv.config();
-console.log('JWT_SECRET:', process.env.JWT_SECRET);  // Debugging line
-
-
-
-
+console.log('JWT_SECRET:', process.env.JWT_SECRET); // Debugging line
 
 const app = express();
-app.use(express.json()); // Parse JSON requests
 
+// Middleware
+app.use(express.json()); // Parse JSON requests 
 app.use(cors());
-// Use user routes for handling login and registration
-app.use('/api/auth', userRoutes);
 
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log('MongoDB Connected'))
-    .catch(err => console.error(err));
+// Routes
+app.use('/api/logs', logsT); // Wazuh logs route
+app.use('/api/auth', userRoutes); // User authentication routes
+app.use('/api/agents', agentsRoutes);
 
+// MongoDB connection
+//mongoose.connect("mongodb://localhost:27017/emitdb")
+ //  .then(() => console.log('MongoDB Connected'))
+  // .catch(err => console.error(err));
+
+// Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
