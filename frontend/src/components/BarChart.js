@@ -1,18 +1,32 @@
 import * as React from 'react';
 import { BarChart } from '@mui/x-charts/BarChart';
 
-export default function ChartsOverviewDemo() {
+export default function AlertsBarChart() {
   return (
     <BarChart
       series={[
-        { data: [35, 44, 24, 34] },
-        { data: [51, 6, 49, 30] },
-        { data: [15, 25, 30, 50] },
-        { data: [60, 50, 15, 25] },
+        {
+          label: 'Alert Counts',
+          data: [10, 15, 8, 5, 7, 12, 6, 9], // Replace with actual counts for each alert
+        },
       ]}
-      height={290}
-      xAxis={[{ data: ['Q1', 'Q2', 'Q3', 'Q4'], scaleType: 'band' }]}
-      margin={{ top: 10, bottom: 30, left: 40, right: 10 }}
+      height={300}
+      xAxis={[
+        {
+          data: [
+            'VPN Misuse',
+            'Unauthorized Access',
+            'Suspicious Login',
+            'Suspicious File Upload',
+            'Phishing Attempt',
+            'Malware Detected',
+            'Policy Violation',
+            'Insider Threat',
+          ],
+          scaleType: 'band',
+        },
+      ]}
+      margin={{ top: 10, bottom: 80, left: 50, right: 10 }} // Adjust margins for better spacing
     />
   );
 }

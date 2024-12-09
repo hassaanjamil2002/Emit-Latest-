@@ -16,6 +16,8 @@ import AlertsTable from '../components/AlertsTable';
 import ChartsOverviewDemo from '../components/BarChart.js';
 import BasicPie from '../components/PieChart.js';
 import BasicCard from '../components/Cards.js';
+import ConnectedPC from '../components/ConnectedPC'; // Adjust the path as needed
+import { rows as allAlerts } from './Alerts'; // Import all alerts data
 
 const NAVIGATION = [
   {
@@ -67,7 +69,6 @@ const demoTheme = createTheme({
     },
   },
 });
-
 function DemoPageContent() {
   return (
     <Box
@@ -79,12 +80,35 @@ function DemoPageContent() {
         textAlign: 'center',
       }}
     >
-      <Typography variant="h6" sx={{ mb: 4 }}>
-        Dashboard Content
-      </Typography>
-      <AlertsTable />
-      
-      
+     
+      {/* Connected PCs Table */}
+      <Box
+        sx={{
+          mb: 4,
+          width: '100%',
+          px: 4,
+        }}
+      >
+        <Typography variant="h6" sx={{ mb: 2 }}>
+          Connected PCs
+        </Typography>
+        <ConnectedPC />
+      </Box>
+
+      {/* Alerts Table */}
+      <Box
+        sx={{
+          mb: 4,
+          width: '100%',
+          px: 4,
+        }}
+      >
+        <Typography variant="h6" sx={{ mb: 2 }}>
+          Alerts
+        </Typography>
+        <AlertsTable />
+      </Box>
+
       <Box
         sx={{
           display: 'flex',
@@ -119,12 +143,9 @@ function DemoPageContent() {
           }}
         >
           <ChartsOverviewDemo />
-          
         </Box>
-        
       </Box>
     </Box>
- 
   );
 }
 
