@@ -12,11 +12,13 @@ import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { DataGridPro } from '@mui/x-data-grid-pro';
 import axios from 'axios';
 import logo1 from '../components/logo1.png';
-// Columns for the Logs table
+
+// Columns for the Logs table, added Agent Name column
 const logColumns = [
   { field: 'logId', headerName: 'Log ID', width: 90 },
   { field: 'logDetail', headerName: 'Log Details', width: 600 },
   { field: 'timestamp', headerName: 'Timestamp', width: 200 },
+  { field: 'agentName', headerName: 'Agent Name', width: 200 },  // New column for Agent Name
 ];
 
 // Sample NAVIGATION structure (unchanged)
@@ -74,11 +76,34 @@ const demoTheme = createTheme({
 // Function to fetch logs from the server
 const fetchLogs = async () => {
   try {
-    const response = await axios.get('http://localhost:5000/api/logs');  // Replace with actual endpoint
-    return response.data.data.affected_items;  // Assuming response is an array of logs
+    const response = await axios.get('http://localhost:5000/api/logs'); // Replace with actual endpoint
+    console.log("API Response:", response.data);
+
+    let logsData = [];
+
+    if (Array.isArray(response.data)) {
+      logsData = response.data;
+    } else if (typeof response.data === "string") {
+      logsData = response.data
+        .split("\n")
+        .filter((line) => line.trim() !== "")
+        .map((line) => {
+          try {
+            return JSON.parse(line);
+          } catch (parseError) {
+            console.error("Error parsing log line:", line, parseError);
+            return null;
+          }
+        })
+        .filter((log) => log !== null);
+    } else {
+      console.error("Unexpected API response format:", response.data);
+    }
+
+    return logsData;
   } catch (error) {
-    console.error('Error fetching logs:', error);
-    return [];  // Return empty array in case of error
+    console.error("Error fetching logs:", error);
+    return []; // Return empty array in case of error
   }
 };
 
@@ -91,17 +116,17 @@ function LogsContent() {
   useEffect(() => {
     const getLogs = async () => {
       const logsData = await fetchLogs();
-      const safeLogsData = Array.isArray(logsData) ? logsData : [];
-      const formattedLogs = await safeLogsData.map((log, index) => ({
-        id: index + 1,  // Assign unique ID for DataGridPro
-        logDetail: log.description,  // Assuming description contains the log details
-        timestamp: log.timestamp,  // Assuming timestamp is already in a suitable format
+      const formattedLogs = logsData.map((log, index) => ({
+        id: index + 1, // Assign unique ID for DataGridPro
+        logDetail: log.rule?.description || 'No Description', // Assuming rule.description contains the log details
+        timestamp: log.timestamp || 'No Timestamp', // Assuming timestamp is already in a suitable format
+        agentName: log.agent?.name || 'No Agent', // Added agent name to be displayed in the table
       }));
       setLogs(formattedLogs);
     };
 
     getLogs();
-  }, []);  // Empty dependency array means this runs once when component mounts
+  }, []); // Empty dependency array means this runs once when component mounts
 
   return (
     <Box
