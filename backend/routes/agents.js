@@ -8,7 +8,7 @@ async function getAuthToken() {
   try {
     console.log('Making request to Wazuh API...');
     const response = await axios.post(
-      'https://192.168.100.94:55000/security/user/authenticate',
+      'https://20.6.130.36:55000/security/user/authenticate',
       {}, // Empty body as credentials are in the header
       {
         auth: {

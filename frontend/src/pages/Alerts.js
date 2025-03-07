@@ -75,8 +75,8 @@ const NAVIGATION = [
    
   },
   {
-    segment: 'integrations',
-    title: 'Integrations',
+    segment: 'Ruleset',
+    title: 'Manage Rules',
     icon: <LayersIcon />,
   },
 ];

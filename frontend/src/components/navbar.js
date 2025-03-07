@@ -15,11 +15,16 @@ const Navbar = () => {
     navigate('/logs'); // Navigate to /logs
   };
   
+  const handleRulesClick= () => {
+    navigate('/ruleset');
+    
+  };
   return (
     <nav className="navbar">
       <div className="navbar-buttons">
       <button onClick={handleDashboardClick}>Dashboard</button>
       <button onClick={handleLogsClick}>Logs</button>
+      <button onClick={handleRulesClick}>RuleSet</button>
         <button>Projects</button>
         <button>Settings</button>
         <button>Support</button>

@@ -6,6 +6,7 @@ import Register from './pages/Register';
 import Logs2 from './pages/Logs';
 import Dashboard2 from './pages/dashboard2';
 import Alerts from './pages/Alerts';
+import Ruleset from './pages/ruleset';
 
 const App = () => (
     <Router>
@@ -16,6 +17,7 @@ const App = () => (
             <Route path="/logs" element={<Logs2 />} />
             <Route path="/dashboard" element={<Dashboard2 />} />
             <Route path="/Alerts" element={<Alerts/>}/>
+            <Route path="/RuleSet" element={<Ruleset/>}/>
         </Routes>
     </Router>
 );  

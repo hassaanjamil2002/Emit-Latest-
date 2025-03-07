@@ -21,9 +21,9 @@ app.use('/api/auth', userRoutes); // User authentication routes
 app.use('/api/agents', agentsRoutes);
 
 // MongoDB connection
-//mongoose.connect("mongodb://localhost:27017/emitdb")
- //  .then(() => console.log('MongoDB Connected'))
-  // .catch(err => console.error(err));
+mongoose.connect("mongodb://localhost:27017/emitdb")
+   .then(() => console.log('MongoDB Connected'))
+   .catch(err => console.error(err));
 
 // Start the server
 const PORT = process.env.PORT || 5000;

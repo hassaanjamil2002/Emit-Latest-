@@ -19,6 +19,7 @@ import BasicCard from '../components/Cards.js';
 import ConnectedPC from '../components/ConnectedPC'; // Adjust the path as needed
 import { rows as allAlerts } from './Alerts'; // Import all alerts data
 import logo1 from '../components/logo1.png';
+import LogsBarChart from '../components/AgentsLogs.js';
 
 const NAVIGATION = [
   {
@@ -26,7 +27,7 @@ const NAVIGATION = [
     title: 'Main items',
   },
   {
-    segment: 'dashboard2',
+    segment: 'dashboard',
     title: 'Dashboard',
     icon: <DashboardIcon />,
   },
@@ -49,8 +50,8 @@ const NAVIGATION = [
     
   },
   {
-    segment: 'integrations',
-    title: 'Integrations',
+    segment: 'Ruleset',
+    title: 'Manage Rules',
     icon: <LayersIcon />,
   },
 ];
@@ -70,6 +71,7 @@ const demoTheme = createTheme({
     },
   },
 });
+import AgentsLogs from '../components/AgentsLogs'; // Import the new chart component
 
 function DemoPageContent() {
   return (
@@ -82,35 +84,7 @@ function DemoPageContent() {
         textAlign: 'center',
       }}
     >
-     
-      {/* Connected PCs Table */}
-      <Box
-        sx={{
-          mb: 4,
-          width: '100%',
-          px: 4,
-        }}
-      >
-        <Typography variant="h6" sx={{ mb: 2 }}>
-          Connected PCs
-        </Typography>
-        <ConnectedPC />
-      </Box>
-
-      {/* Alerts Table */}
-      <Box
-        sx={{
-          mb: 4,
-          width: '100%',
-          px: 4,
-        }}
-      >
-        <Typography variant="h6" sx={{ mb: 2 }}>
-          Alerts
-        </Typography>
-        <AlertsTable />
-      </Box>
-
+      {/* Graphs Section */}
       <Box
         sx={{
           display: 'flex',
@@ -118,6 +92,7 @@ function DemoPageContent() {
           gap: 2,
           width: '100%',
           px: 4,
+          mb: 4, // Add margin bottom to separate graphs from tables
         }}
       >
         <Box
@@ -146,6 +121,51 @@ function DemoPageContent() {
         >
           <ChartsOverviewDemo />
         </Box>
+      </Box>
+
+      {/* New Box for Agents Logs Bar Chart */}
+      <Box
+        sx={{
+          width: '100%',
+          px: 4,
+          mb: 4,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          border: '1px solid #ddd',
+          borderRadius: 2,
+          padding: 2,
+        }}
+      >
+        <LogsBarChart />
+      </Box>
+
+      {/* Connected PCs Table */}
+      <Box
+        sx={{
+          mb: 4,
+          width: '100%',
+          px: 4,
+        }}
+      >
+        <Typography variant="h6" sx={{ mb: 2 }}>
+          Connected PCs
+        </Typography>
+        <ConnectedPC />
+      </Box>
+
+      {/* Alerts Table */}
+      <Box
+        sx={{
+          mb: 4,
+          width: '100%',
+          px: 4,
+        }}
+      >
+        <Typography variant="h6" sx={{ mb: 2 }}>
+          Alerts
+        </Typography>
+        <AlertsTable />
       </Box>
     </Box>
   );
@@ -227,3 +247,4 @@ DashboardLayoutBasic.propTypes = {
 };
 
 export default DashboardLayoutBasic;
+
