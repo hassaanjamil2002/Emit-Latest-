@@ -12,6 +12,7 @@ import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { DataGridPro } from '@mui/x-data-grid-pro';
 import axios from 'axios';
 import logo1 from '../components/logo1.png';
+import DescriptionIcon from '@mui/icons-material/Description';
 
 // Columns for the Logs table, added Agent Name column
 const logColumns = [
@@ -54,6 +55,7 @@ const NAVIGATION = [
     title: 'Manage Rules',
     icon: <LayersIcon />,
   },
+  { segment: 'integrations', title: 'Integrations', icon: <DescriptionIcon /> },
 ];
 
 // Define theme for the UI

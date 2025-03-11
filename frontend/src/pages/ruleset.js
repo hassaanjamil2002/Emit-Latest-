@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { TextField, Button, Dialog, DialogTitle, DialogContent, DialogActions, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
+import { TextField, Button, Dialog, DialogTitle, DialogContent, DialogActions, MenuItem, Select, FormControl, InputLabel, Snackbar, Alert } from '@mui/material';
 import { Add } from '@mui/icons-material';
 
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
-
 import RulesTable from '../components/RulesTable';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import NotificationImportantIcon from '@mui/icons-material/NotificationImportant';
@@ -16,37 +15,14 @@ import LayersIcon from '@mui/icons-material/Layers';
 import logo1 from '../components/logo1.png';
 
 const NAVIGATION = [
-  {
-    kind: 'header',
-    title: 'Main items',
-  },
-  {
-    segment: 'dashboard',
-    title: 'Dashboard',
-    icon: <DashboardIcon />,
-  },
-  {
-    segment: 'Alerts',
-    title: 'Alerts',
-    icon: <NotificationImportantIcon />,
-  },
-  {
-    kind: 'divider',
-  },
-  {
-    kind: 'header',
-    title: 'Analytics',
-  },
-  {
-    segment: 'logs',
-    title: 'Logs',
-    icon: <BarChartIcon />,
-  },
-  {
-    segment: 'Ruleset',
-    title: 'Manage Rules',
-    icon: <LayersIcon />,
-  },
+  { kind: 'header', title: 'Main items' },
+  { segment: 'dashboard', title: 'Dashboard', icon: <DashboardIcon /> },
+  { segment: 'Alerts', title: 'Alerts', icon: <NotificationImportantIcon /> },
+  { kind: 'divider' },
+  { kind: 'header', title: 'Analytics' },
+  { segment: 'logs', title: 'Logs', icon: <BarChartIcon /> },
+  { segment: 'Ruleset', title: 'Manage Rules', icon: <LayersIcon /> },
+  { segment: 'integrations', title: 'Integrations', icon: <DescriptionIcon /> },
 ];
 
 const Ruleset = () => {
@@ -56,28 +32,35 @@ const Ruleset = () => {
   ]);
 
   const [open, setOpen] = useState(false);
+  const [alertOpen, setAlertOpen] = useState(false); // State for success alert
+  const [deleteAlertOpen, setDeleteAlertOpen] = useState(false); // State for delete alert
   const [newRule, setNewRule] = useState({ name: '', description: '', field: '', operator: '', value: '' });
 
   const handleInputChange = (e) => {
     setNewRule({ ...newRule, [e.target.name]: e.target.value });
   };
 
-  const handleOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+  const handleAlertClose = () => setAlertOpen(false);
+  const handleDeleteAlertClose = () => setDeleteAlertOpen(false);
 
   const addRule = () => {
     if (!newRule.name.trim() || !newRule.field.trim() || !newRule.operator.trim() || !newRule.value.trim()) return;
 
     const condition = `IF ${newRule.field} ${newRule.operator} ${newRule.value} THEN alert`;
     const newEntry = { id: rules.length + 1, name: newRule.name, description: newRule.description, conditions: condition };
+
     setRules([...rules, newEntry]);
     setNewRule({ name: '', description: '', field: '', operator: '', value: '' });
+    setAlertOpen(true); // Show success alert
     handleClose();
+  };
+
+  // Function to delete a rule
+  const deleteRule = (id) => {
+    setRules(rules.filter(rule => rule.id !== id));
+    setDeleteAlertOpen(true); // Show delete alert
   };
 
   return (
@@ -110,7 +93,6 @@ const Ruleset = () => {
                   <Select name="field" value={newRule.field} onChange={handleInputChange}>
                     <MenuItem value="login_attempts">Login Attempts</MenuItem>
                     <MenuItem value="process_name">Process Name</MenuItem>
-                    {/* Add more fields as needed */}
                   </Select>
                 </FormControl>
                 <FormControl fullWidth>
@@ -119,7 +101,6 @@ const Ruleset = () => {
                     <MenuItem value=">">{'>'}</MenuItem>
                     <MenuItem value="==">{'=='}</MenuItem>
                     <MenuItem value="<">{'<'}</MenuItem>
-                    {/* Add more operators as needed */}
                   </Select>
                 </FormControl>
                 <TextField label="Value" name="value" value={newRule.value} onChange={handleInputChange} fullWidth />
@@ -131,7 +112,23 @@ const Ruleset = () => {
             </DialogActions>
           </Dialog>
 
-          <RulesTable rules={rules} setRules={setRules} />
+          {/* Pass deleteRule function to RulesTable */}
+          <RulesTable rules={rules} setRules={setRules} deleteRule={deleteRule} />
+
+          {/* Success Alert */}
+          <Snackbar open={alertOpen} autoHideDuration={3000} onClose={handleAlertClose}>
+            <Alert onClose={handleAlertClose} severity="success" variant="filled">
+              Rule successfully created!
+            </Alert>
+          </Snackbar>
+
+          {/* Delete Alert */}
+          <Snackbar open={deleteAlertOpen} autoHideDuration={3000} onClose={handleDeleteAlertClose}>
+            <Alert onClose={handleDeleteAlertClose} severity="error" variant="filled">
+              Rule successfully deleted!
+            </Alert>
+          </Snackbar>
+
         </Box>
       </DashboardLayout>
     </AppProvider>

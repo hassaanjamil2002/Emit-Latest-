@@ -79,7 +79,9 @@ const NAVIGATION = [
     title: 'Manage Rules',
     icon: <LayersIcon />,
   },
+  { segment: 'integrations', title: 'Integrations', icon: <DescriptionIcon /> },
 ];
+
 
 const demoTheme = createTheme({
   cssVariables: {
