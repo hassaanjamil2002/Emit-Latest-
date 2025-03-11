@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { TextField, Button, Dialog, DialogTitle, DialogContent, DialogActions, MenuItem, Select, FormControl, InputLabel, Snackbar, Alert } from '@mui/material';
 import { Add } from '@mui/icons-material';
+import axios from 'axios';
 
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
@@ -26,41 +27,75 @@ const NAVIGATION = [
 ];
 
 const Ruleset = () => {
-  const [rules, setRules] = useState([
-    { id: 1, name: 'Unauthorized Access', description: 'Detects unauthorized access attempts', conditions: 'IF login_attempts > 5 THEN alert' },
-    { id: 2, name: 'Malware Detection', description: 'Detects malware activity in logs', conditions: 'IF process_name == "malware.exe" THEN alert' },
-  ]);
-
+  const [rules, setRules] = useState([]);
   const [open, setOpen] = useState(false);
-  const [alertOpen, setAlertOpen] = useState(false); // State for success alert
-  const [deleteAlertOpen, setDeleteAlertOpen] = useState(false); // State for delete alert
-  const [newRule, setNewRule] = useState({ name: '', description: '', field: '', operator: '', value: '' });
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [editingRuleId, setEditingRuleId] = useState(null);
+  const [newRule, setNewRule] = useState({
+    id: '',
+    level: '',
+    description: '',
+    matches: '',
+    action: '',
+    tags: ''
+  });
+
+  useEffect(() => {
+    axios.get('http://localhost:5000/api/rules')
+      .then(response => {
+        console.log("Fetched Rules:", response.data);
+        setRules(response.data);
+      })
+      .catch(error => console.error('Error fetching rules:', error));
+  }, []);
 
   const handleInputChange = (e) => {
     setNewRule({ ...newRule, [e.target.name]: e.target.value });
   };
 
-  const handleOpen = () => setOpen(true);
+  const handleOpen = () => {
+    setEditMode(false);
+    setNewRule({ id: '', level: '', description: '', matches: '', action: '', tags: '' });
+    setOpen(true);
+  };
+
   const handleClose = () => setOpen(false);
   const handleAlertClose = () => setAlertOpen(false);
-  const handleDeleteAlertClose = () => setDeleteAlertOpen(false);
 
-  const addRule = () => {
-    if (!newRule.name.trim() || !newRule.field.trim() || !newRule.operator.trim() || !newRule.value.trim()) return;
+  const addOrUpdateRule = () => {
+    if (!newRule.description.trim() || !newRule.matches.trim()) return;
 
-    const condition = `IF ${newRule.field} ${newRule.operator} ${newRule.value} THEN alert`;
-    const newEntry = { id: rules.length + 1, name: newRule.name, description: newRule.description, conditions: condition };
+    const url = editMode 
+      ? `http://localhost:5000/api/rules/${editingRuleId}`
+      : 'http://localhost:5000/api/rules';
 
-    setRules([...rules, newEntry]);
-    setNewRule({ name: '', description: '', field: '', operator: '', value: '' });
-    setAlertOpen(true); // Show success alert
+    const method = editMode ? 'put' : 'post';
+
+    axios[method](url, newRule)
+      .then(response => {
+        setRules(response.data);
+        setAlertOpen(true);
+      })
+      .catch(error => console.error(`Error ${editMode ? 'updating' : 'adding'} rule:`, error));
+
+    setNewRule({ id: '', level: '', description: '', matches: '', action: '', tags: '' });
     handleClose();
   };
 
-  // Function to delete a rule
+  const editRule = (rule) => {
+    setNewRule(rule);
+    setEditingRuleId(rule.id);
+    setEditMode(true);
+    setOpen(true);
+  };
+
   const deleteRule = (id) => {
-    setRules(rules.filter(rule => rule.id !== id));
-    setDeleteAlertOpen(true); // Show delete alert
+    axios.delete(`http://localhost:5000/api/rules/${id}`)
+      .then(response => {
+        setRules(response.data);
+      })
+      .catch(error => console.error('Error deleting rule:', error));
   };
 
   return (
@@ -82,53 +117,25 @@ const Ruleset = () => {
             Create Rule
           </Button>
 
-          <Dialog open={open} onClose={handleClose}>
-            <DialogTitle>Create New Rule</DialogTitle>
+          <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
+            <DialogTitle>{editMode ? 'Edit Rule' : 'Create New Rule'}</DialogTitle>
             <DialogContent>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
-                <TextField label="Rule Name" name="name" value={newRule.name} onChange={handleInputChange} fullWidth />
-                <TextField label="Description (Optional)" name="description" value={newRule.description} onChange={handleInputChange} fullWidth multiline rows={2} />
-                <FormControl fullWidth>
-                  <InputLabel>Field</InputLabel>
-                  <Select name="field" value={newRule.field} onChange={handleInputChange}>
-                    <MenuItem value="login_attempts">Login Attempts</MenuItem>
-                    <MenuItem value="process_name">Process Name</MenuItem>
-                  </Select>
-                </FormControl>
-                <FormControl fullWidth>
-                  <InputLabel>Operator</InputLabel>
-                  <Select name="operator" value={newRule.operator} onChange={handleInputChange}>
-                    <MenuItem value=">">{'>'}</MenuItem>
-                    <MenuItem value="==">{'=='}</MenuItem>
-                    <MenuItem value="<">{'<'}</MenuItem>
-                  </Select>
-                </FormControl>
-                <TextField label="Value" name="value" value={newRule.value} onChange={handleInputChange} fullWidth />
+                <TextField label="Rule ID" name="id" value={newRule.id} onChange={handleInputChange} fullWidth />
+                <TextField label="Level" name="level" value={newRule.level} onChange={handleInputChange} fullWidth />
+                <TextField label="Description" name="description" value={newRule.description} onChange={handleInputChange} fullWidth multiline rows={2} />
+                <TextField label="Matches (Comma-separated)" name="matches" value={newRule.matches} onChange={handleInputChange} fullWidth />
+                <TextField label="Actions (e.g., log, alert)" name="action" value={newRule.action} onChange={handleInputChange} fullWidth />
+                <TextField label="Tags (Comma-separated)" name="tags" value={newRule.tags} onChange={handleInputChange} fullWidth />
               </Box>
             </DialogContent>
             <DialogActions>
-              <Button onClick={handleClose}>Cancel</Button>
-              <Button onClick={addRule} color="primary">Create</Button>
+              <Button onClick={handleClose} color="error">Cancel</Button>
+              <Button onClick={addOrUpdateRule} color="primary">{editMode ? 'Update Rule' : 'Create Rule'}</Button>
             </DialogActions>
           </Dialog>
 
-          {/* Pass deleteRule function to RulesTable */}
-          <RulesTable rules={rules} setRules={setRules} deleteRule={deleteRule} />
-
-          {/* Success Alert */}
-          <Snackbar open={alertOpen} autoHideDuration={3000} onClose={handleAlertClose}>
-            <Alert onClose={handleAlertClose} severity="success" variant="filled">
-              Rule successfully created!
-            </Alert>
-          </Snackbar>
-
-          {/* Delete Alert */}
-          <Snackbar open={deleteAlertOpen} autoHideDuration={3000} onClose={handleDeleteAlertClose}>
-            <Alert onClose={handleDeleteAlertClose} severity="error" variant="filled">
-              Rule successfully deleted!
-            </Alert>
-          </Snackbar>
-
+          <RulesTable rules={rules} deleteRule={deleteRule} editRule={editRule} />
         </Box>
       </DashboardLayout>
     </AppProvider>

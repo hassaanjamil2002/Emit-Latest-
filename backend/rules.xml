@@ -1,0 +1,20 @@
+<rules>
+  <rule id="2501" level="5">
+    <match>FAILED LOGIN</match>
+    <match>authentication failure</match>
+    <description>User authentication failure detected</description>
+    <group>authentication_failed,pci_dss_10.2.4,gpg13_7.8,gdpr_IV_35.7.d,hipaa_164.312.b</group>
+  </rule>
+  
+  <rule id="2502" level="10">
+    <match>REPEATED login failures</match>
+    <description>User failed password attempt multiple times</description>
+    <group>authentication_failed,pci_dss_10.2.5</group>
+  </rule>
+  
+  <rule id="2503" level="5">
+    <match>Connection blocked by Tcp Wrappers</match>
+    <description>Connection attempt blocked by TCP wrappers</description>
+    <group>access_denied,pci_dss_10.2.4</group>
+  </rule>
+</rules>

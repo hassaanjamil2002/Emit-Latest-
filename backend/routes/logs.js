@@ -4,7 +4,7 @@ const router = express.Router();
 
 // Logs route that fetches alerts.json
 router.get('/', async (req, res) => {
-    const alertsUrl = 'http://20.6.130.36:8080/alerts.json';
+    const alertsUrl = 'http://192.168.100.94:8080/alerts.json';
 
     try {
         console.log(`Fetching data from ${alertsUrl}...`);
@@ -12,7 +12,7 @@ router.get('/', async (req, res) => {
         // Fetch the alerts.json file
         const response = await axios.get(alertsUrl);
 
-        console.log('Successfully fetched alerts data:', response.data);
+     //   console.log('Successfully fetched alerts data:', response.data);
 
         // Respond with the parsed JSON data
         res.json(response.data);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -8,7 +8,7 @@ import NotificationImportantIcon from '@mui/icons-material/NotificationImportant
 import BarChartIcon from '@mui/icons-material/BarChart';
 import DescriptionIcon from '@mui/icons-material/Description';
 import LayersIcon from '@mui/icons-material/Layers';
-
+import axios from 'axios';
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { DataGridPro } from '@mui/x-data-grid-pro';
@@ -98,10 +98,28 @@ const demoTheme = createTheme({
     },
   },
 });
-
-// Function to render the Alerts Table content
 function AlertsContent() {
   const [pageSize, setPageSize] = useState(10);
+  const [rows, setRows] = useState([]);
+
+  useEffect(() => {
+    axios.get('http://localhost:5000/api/enforce-rules')
+      .then(response => {
+        console.log("Fetched alerts:", response.data);
+
+        const formattedRows = response.data.map((alert, index) => ({
+          id: index + 1,
+          alertName: alert.rule.description || 'Unknown Alert',
+          status: 'Active', 
+          timestamp: alert.log.timestamp || 'Unknown',
+          severity: alert.rule.level || 'Unknown',
+          actionTaken: 'Alert Sent'
+        }));
+
+        setRows(formattedRows);
+      })
+      .catch(error => console.error('Error fetching alerts:', error));
+  }, []);
 
   return (
     <Box

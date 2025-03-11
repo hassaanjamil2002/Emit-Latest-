@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect  } from 'react';
 import PropTypes from 'prop-types';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -8,6 +8,7 @@ import NotificationImportantIcon from '@mui/icons-material/NotificationImportant
 import BarChartIcon from '@mui/icons-material/BarChart';
 import DescriptionIcon from '@mui/icons-material/Description';
 import LayersIcon from '@mui/icons-material/Layers';
+import axios from 'axios';
 
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
@@ -19,6 +20,7 @@ import ConnectedPC from '../components/ConnectedPC';
 import { rows as allAlerts } from './Alerts';
 import logo1 from '../components/logo1.png';
 import LogsBarChart from '../components/AgentsLogs.js';
+
 
 const NAVIGATION = [
   { kind: 'header', title: 'Main items' },
@@ -46,8 +48,58 @@ const demoTheme = createTheme({
     },
   },
 });
-
 function DemoPageContent() {
+  const [logsCount, setLogsCount] = useState(0);
+  const [alertsCount, setAlertsCount] = useState(0);
+  const [criticalAlertsCount, setCriticalAlertsCount] = useState(0);
+
+  useEffect(() => {
+    const fetchLogs = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/logs');
+        console.log('Raw Response Data:', response.data);
+    
+        // Make sure response data is a string
+        if (typeof response.data !== 'string') {
+          console.error('Response data is not a string. Please check your backend.');
+          return;
+        }
+    
+        // Split the response data by newlines
+        const logsArray = response.data.trim().split('\n').filter(line => line.trim() !== "");
+    
+        // Parse each line into a JSON object
+        const parsedLogs = logsArray.map(line => {
+          try {
+            return JSON.parse(line);
+          } catch (error) {
+            console.error('Error parsing log line:', line, error);
+            return null; // Ignore invalid logs
+          }
+        }).filter(log => log !== null);
+    
+        console.log('Parsed Logs:', parsedLogs);
+    
+        // Update state
+        setLogsCount(parsedLogs.length);
+    
+        const alerts = parsedLogs.filter(log => log.rule && log.rule.description);
+        setAlertsCount(alerts.length);
+    
+        const criticalAlerts = alerts.filter(alert => alert.rule.level >= 10);
+        setCriticalAlertsCount(criticalAlerts.length);
+    
+      } catch (error) {
+        console.error('Error fetching logs data:', error.message);
+      }
+    };
+    
+    
+  
+    fetchLogs();
+  }, []);
+  
+
   return (
     <Box
       sx={{
@@ -69,7 +121,7 @@ function DemoPageContent() {
           alignItems: 'center',
         }}
       >
-        {[{ title: 'Logs Received', value: '1,234' }, { title: 'Alerts Generated', value: '56' }, { title: 'Critical Alerts', value: '10' }].map((stat, index) => (
+        {[{ title: 'Logs Received', value: logsCount }, { title: 'Alerts Generated', value: alertsCount }, { title: 'Critical Alerts', value: criticalAlertsCount }].map((stat, index) => (
           <Box
             key={index}
             sx={{

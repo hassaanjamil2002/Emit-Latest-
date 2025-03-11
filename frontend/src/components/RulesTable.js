@@ -4,8 +4,7 @@ import { DataGrid } from '@mui/x-data-grid';
 import { IconButton } from '@mui/material';
 import { Edit, Delete } from '@mui/icons-material';
 
-// Define columns for the rules table
-const columns = (handleDelete) => [
+const columns = (handleEdit, handleDelete) => [
   { field: 'id', headerName: 'ID', width: 100 },
   { field: 'name', headerName: 'Rule Name', width: 200 },
   { field: 'description', headerName: 'Description', width: 300 },
@@ -16,7 +15,7 @@ const columns = (handleDelete) => [
     width: 150,
     renderCell: (params) => (
       <>
-        <IconButton color="primary">
+        <IconButton color="primary" onClick={() => handleEdit(params.row)}>
           <Edit />
         </IconButton>
         <IconButton color="error" onClick={() => handleDelete(params.row.id)}>
@@ -27,16 +26,12 @@ const columns = (handleDelete) => [
   },
 ];
 
-export default function RulesTable({ rules, setRules }) {
-  const handleDelete = (id) => {
-    setRules(rules.filter((rule) => rule.id !== id));
-  };
-
+export default function RulesTable({ rules, setRules, editRule, deleteRule }) {
   return (
     <Box sx={{ height: 400, width: '100%' }}>
       <DataGrid
         rows={rules}
-        columns={columns(handleDelete)}
+        columns={columns(editRule, deleteRule)}
         pageSizeOptions={[5]}
         checkboxSelection
         disableRowSelectionOnClick
