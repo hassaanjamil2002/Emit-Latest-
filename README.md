@@ -55,7 +55,7 @@ Install Wazuh on Azure Cloud VM and configure it to collect logs from other mach
 npm start
 
 # Backend
-node app.js
+node server.js
 ```
 
 ## Usage
