@@ -18,9 +18,9 @@ import ChartsOverviewDemo from '../components/BarChart.js';
 import BasicPie from '../components/PieChart.js';
 import ConnectedPC from '../components/ConnectedPC';
 import { rows as allAlerts } from './Alerts';
-import logo1 from '../components/logo1.png';
+import logo from '../components/logo.jpeg';
 import LogsBarChart from '../components/AgentsLogs.js';
-
+import SuspicionLevelsChart from '../components/SusLevelCharts.js';
 
 const NAVIGATION = [
   { kind: 'header', title: 'Main items' },
@@ -48,58 +48,54 @@ const demoTheme = createTheme({
     },
   },
 });
+
 function DemoPageContent() {
   const [logsCount, setLogsCount] = useState(0);
   const [alertsCount, setAlertsCount] = useState(0);
   const [criticalAlertsCount, setCriticalAlertsCount] = useState(0);
 
   useEffect(() => {
-    const fetchLogs = async () => {
+    const fetchDashboardData = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/logs');
-        console.log('Raw Response Data:', response.data);
-    
-        // Make sure response data is a string
-        if (typeof response.data !== 'string') {
+        // Fetching Logs
+        const logsResponse = await axios.get('http://localhost:5000/api/logs');
+        console.log('Raw Response Data:', logsResponse.data);
+  
+        if (typeof logsResponse.data !== 'string') {
           console.error('Response data is not a string. Please check your backend.');
           return;
         }
-    
-        // Split the response data by newlines
-        const logsArray = response.data.trim().split('\n').filter(line => line.trim() !== "");
-    
-        // Parse each line into a JSON object
+  
+        const logsArray = logsResponse.data.trim().split('\n').filter(line => line.trim() !== "");
+  
         const parsedLogs = logsArray.map(line => {
           try {
             return JSON.parse(line);
           } catch (error) {
             console.error('Error parsing log line:', line, error);
-            return null; // Ignore invalid logs
+            return null;
           }
         }).filter(log => log !== null);
-    
+  
         console.log('Parsed Logs:', parsedLogs);
-    
-        // Update state
+  
         setLogsCount(parsedLogs.length);
-    
+  
         const alerts = parsedLogs.filter(log => log.rule && log.rule.description);
-        setAlertsCount(alerts.length);
-    
-        const criticalAlerts = alerts.filter(alert => alert.rule.level >= 10);
-        setCriticalAlertsCount(criticalAlerts.length);
-    
+        setCriticalAlertsCount(alerts.filter(alert => alert.rule.level >= 10).length);
+  
+        // Fetching Alerts Count from Backend
+        const alertsResponse = await axios.get('http://localhost:5000/api/enforce-rules/count');
+        console.log('Fetched Alert Count:', alertsResponse.data.alertCount);
+        setAlertsCount(alertsResponse.data.alertCount);
+  
       } catch (error) {
-        console.error('Error fetching logs data:', error.message);
+        console.error('Error fetching dashboard data:', error.message);
       }
     };
-    
-    
   
-    fetchLogs();
+    fetchDashboardData();
   }, []);
-  
-
   return (
     <Box
       sx={{
@@ -110,7 +106,6 @@ function DemoPageContent() {
         textAlign: 'center',
       }}
     >
-      {/* SIEM Information Box */}
       <Box
         sx={{
           width: '100%',
@@ -121,7 +116,8 @@ function DemoPageContent() {
           alignItems: 'center',
         }}
       >
-        {[{ title: 'Logs Received', value: logsCount }, { title: 'Alerts Generated', value: alertsCount }, { title: 'Critical Alerts', value: criticalAlertsCount }].map((stat, index) => (
+        {[{ title: 'Logs Received', value: logsCount }, { title: 'Alerts Generated', value: alertsCount }, { title: 'Critical Alerts', value: criticalAlertsCount }]
+          .map((stat, index) => (
           <Box
             key={index}
             sx={{
@@ -138,113 +134,103 @@ function DemoPageContent() {
         ))}
       </Box>
 
-      {/* Graphs Section */}
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          gap: 2,
-          width: '100%',
-          px: 4,
-          mb: 4,
-        }}
-      >
-        <Box
-          sx={{
-            flex: 1,
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            border: '1px solid #ddd',
-            borderRadius: 2,
-            padding: 2,
-          }}
-        >
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2, width: '100%', px: 4, mb: 4 }}>
+        <Box sx={{ flex: 1, border: '1px solid #ddd', borderRadius: 2, padding: 2 }}>
           <BasicPie />
         </Box>
-        <Box
-          sx={{
-            flex: 1,
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            border: '1px solid #ddd',
-            borderRadius: 2,
-            padding: 2,
-          }}
-        >
+        <Box sx={{ flex: 1, border: '1px solid #ddd', borderRadius: 2, padding: 2 }}>
           <ChartsOverviewDemo />
         </Box>
       </Box>
 
-      {/* Agents Logs Bar Chart */}
-      <Box
-        sx={{
-          width: '100%',
-          px: 4,
-          mb: 4,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          border: '1px solid #ddd',
-          borderRadius: 2,
-          padding: 2,
-        }}
-      >
-        <LogsBarChart />
-      </Box>
+      {/* Place LogsBarChart and SuspicionLevelsChart Side by Side */}
+      <Box 
+  sx={{ 
+    display: 'flex', 
+    justifyContent: 'space-between', 
+    alignItems: 'center', // Center charts vertically
+    gap: 2, 
+    width: '100%', 
+    px: 4, 
+    mb: 4 
+  }}
+>
+  <Box 
+    sx={{ 
+      flex: 1, 
+      border: '1px solid #ddd', 
+      borderRadius: 2, 
+      padding: 2,
+      
+    }}
+  >
+    <LogsBarChart />
+  </Box>
+  
+  <Box 
+    sx={{ 
+      flex: 1, 
+      border: '1px solid #ddd', 
+      borderRadius: 2, 
+      padding: 2,
+      
+      display: 'flex', // Adding this for vertical centering
+      alignItems: 'center', // Centering chart vertically
+      justifyContent: 'center' // Centering chart horizontally
+    }}
+  >
+    <SuspicionLevelsChart />
+  </Box>
+</Box>
 
-      {/* Connected PCs Table */}
       <Box sx={{ mb: 4, width: '100%', px: 4 }}>
-        <Typography variant="h6" sx={{ mb: 2 }}>
-          Connected PCs
-        </Typography>
+        <Typography variant="h6" sx={{ mb: 2 }}>Connected PCs</Typography>
         <ConnectedPC />
       </Box>
 
-      {/* Alerts Table */}
       <Box sx={{ mb: 4, width: '100%', px: 4 }}>
-        <Typography variant="h6" sx={{ mb: 2 }}>
-          Alerts
-        </Typography>
+        <Typography variant="h6" sx={{ mb: 2 }}>Alerts</Typography>
         <AlertsTable />
       </Box>
     </Box>
   );
-}
-
+} 
 function DashboardLayoutBasic(props) {
   const { window } = props;
   const [activeSection, setActiveSection] = useState('dashboard');
   const demoWindow = window !== undefined ? window() : undefined;
-  
-  const handleNavigation = (section) => {
-    setActiveSection(section);
-  };
 
-  const renderContent = () => {
-    return activeSection === 'dashboard' ? <DemoPageContent /> : <Typography>Page Not Found</Typography>;
-  };
+  const handleNavigation = (section) => setActiveSection(section);
+
+  const renderContent = () => activeSection === 'dashboard' ? <DemoPageContent /> : <Typography>Page Not Found</Typography>;
 
   return (
-    <AppProvider
-      logo={logo1}
-      navigation={NAVIGATION.map((item) => ({
-        ...item,
-        onClick: item.segment
-          ? (event) => {
-              event.preventDefault();
-              handleNavigation(item.segment);
-            }
-          : undefined,
-      }))}
-      theme={demoTheme}
-      window={demoWindow}
-      branding={{
-        logo: <img src={logo1} alt="Emit Logo" style={{ height: '70px', width: '50px' }} />,
-        title: '',
-      }}
-    >
+<AppProvider
+  logo={logo}
+  navigation={NAVIGATION.map(item => ({
+    ...item,
+    onClick: item.segment ? (event) => { event.preventDefault(); handleNavigation(item.segment); } : undefined,
+  }))}
+  theme={demoTheme}
+  window={demoWindow}
+  branding={{ 
+    logo: (
+      <Typography 
+        variant="h3" 
+        sx={{ 
+          fontFamily: "'Poppins', sans-serif", 
+          fontWeight: 'bold', 
+          padding: '5px 10px',  // Reduced padding from the top
+          marginTop: '-10px'    // Moves the text upward
+        }}
+      >
+        emit.
+      </Typography>
+    ), 
+    title: '' 
+  }}
+>
+
       <DashboardLayout>{renderContent()}</DashboardLayout>
     </AppProvider>
   );

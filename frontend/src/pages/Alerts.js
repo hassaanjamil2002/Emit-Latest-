@@ -12,17 +12,17 @@ import axios from 'axios';
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { DataGridPro } from '@mui/x-data-grid-pro';
-import logo1 from '../components/logo1.png';
+import logo from '../components/logo.jpeg';
 // Sample data for the alerts table
 const columns = [
   { field: 'id', headerName: 'ID', width: 90 },
   { field: 'alertName', headerName: 'Alert Name', width: 200 },
+  { field: 'ruleName', headerName: 'Triggered Rule', width: 250 }, // New Column
   { field: 'status', headerName: 'Status', width: 150 },
   { field: 'timestamp', headerName: 'Timestamp', width: 200 },
   { field: 'severity', headerName: 'Severity', width: 150 },
   { field: 'actionTaken', headerName: 'Action Taken', width: 250 },
 ];
-
 const rows = [
     { id: 1, alertName: 'Suspicious Login', status: 'Active', timestamp: '2024-12-07 10:45', severity: 'High', actionTaken: 'Alert sent' },
     { id: 2, alertName: 'Data Exfiltration', status: 'Resolved', timestamp: '2024-12-06 14:30', severity: 'Critical', actionTaken: 'Investigation completed' },
@@ -106,21 +106,22 @@ function AlertsContent() {
     axios.get('http://localhost:5000/api/enforce-rules')
       .then(response => {
         console.log("Fetched alerts:", response.data);
-
+  
         const formattedRows = response.data.map((alert, index) => ({
           id: index + 1,
           alertName: alert.rule.description || 'Unknown Alert',
+          ruleName: alert.rule.id || 'Unknown Rule',  // Displaying the rule name
           status: 'Active', 
           timestamp: alert.log.timestamp || 'Unknown',
           severity: alert.rule.level || 'Unknown',
           actionTaken: 'Alert Sent'
         }));
-
+  
         setRows(formattedRows);
       })
       .catch(error => console.error('Error fetching alerts:', error));
   }, []);
-
+  
   return (
     <Box
       sx={{
@@ -205,15 +206,32 @@ function AlertsPageLayout(props) {
   };
 
   return (
+   
     <AppProvider
-      navigation={NAVIGATION.map((item) => (item.segment ? { ...item, onClick: () => handleNavigation(item.segment) } : item))}
-      theme={demoTheme}
-      window={demoWindow}
-      branding={{
-        logo: <img src={logo1} alt="Emit Logo" style={{ height: '70px', width: '50px' }} />, // Render image with styling
-        title: '', // Remove text if not needed
-      }}
-    >
+    logo={logo}
+    navigation={NAVIGATION.map(item => ({
+      ...item,
+      onClick: item.segment ? (event) => { event.preventDefault(); handleNavigation(item.segment); } : undefined,
+    }))}
+    theme={demoTheme}
+    window={demoWindow}
+    branding={{ 
+      logo: (
+        <Typography 
+          variant="h3" 
+          sx={{ 
+            fontFamily: "'Poppins', sans-serif", 
+            fontWeight: 'bold', 
+            padding: '5px 10px',  // Reduced padding from the top
+            marginTop: '-10px'    // Moves the text upward
+          }}
+        >
+          emit.
+        </Typography>
+      ), 
+      title: '' 
+    }}
+  >
       <DashboardLayout>{renderContent()}</DashboardLayout>
     </AppProvider>
   );

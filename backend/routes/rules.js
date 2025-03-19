@@ -40,12 +40,23 @@ const writeRulesToFile = (rules) => {
 router.get('/rules', (req, res) => {
   try {
     const rules = readRulesFromFile();
-    res.json(rules);
+
+    // Format rules to include top-level 'id' property
+    const formattedRules = rules.map((rule, index) => ({
+      id: rule.$.id || `rule-${index}`,  // Adding 'id' to each rule
+      level: rule.$.level || 'Unknown',
+      description: rule.description?.[0] || 'No description',
+      matches: rule.match || [],
+      action: rule.action?.[0] || 'log',
+      tags: rule.tags?.[0] || ''
+    }));
+
+    console.log('✅ Fetched and formatted rules successfully:', formattedRules);
+    res.json(formattedRules);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching rules' });
   }
 });
-
 // Create a new rule
 router.post('/rules', (req, res) => {
   try {

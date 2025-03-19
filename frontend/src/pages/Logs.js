@@ -11,7 +11,7 @@ import { AppProvider } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { DataGridPro } from '@mui/x-data-grid-pro';
 import axios from 'axios';
-import logo1 from '../components/logo1.png';
+import logo from '../components/logo.jpeg';
 import DescriptionIcon from '@mui/icons-material/Description';
 
 // Columns for the Logs table, added Agent Name column
@@ -192,15 +192,32 @@ function LogsPageLayout(props) {
   };
 
   return (
-    <AppProvider
-      navigation={NAVIGATION.map((item) => (item.segment ? { ...item, onClick: () => handleNavigation(item.segment) } : item))}
-      theme={demoTheme}
-      window={demoWindow}
-      branding={{
-        logo: <img src={logo1} alt="Emit Logo" style={{ height: '70px', width: '50px' }} />, // Render image with styling
-        title: '', // Remove text if not needed
-      }}
-    >
+    
+     <AppProvider
+       logo={logo}
+       navigation={NAVIGATION.map(item => ({
+         ...item,
+         onClick: item.segment ? (event) => { event.preventDefault(); handleNavigation(item.segment); } : undefined,
+       }))}
+       theme={demoTheme}
+       window={demoWindow}
+       branding={{ 
+         logo: (
+           <Typography 
+             variant="h3" 
+             sx={{ 
+               fontFamily: "'Poppins', sans-serif", 
+               fontWeight: 'bold', 
+               padding: '5px 10px',  // Reduced padding from the top
+               marginTop: '-10px'    // Moves the text upward
+             }}
+           >
+             emit.
+           </Typography>
+         ), 
+         title: '' 
+       }}
+     >
       <DashboardLayout>{renderContent()}</DashboardLayout>
     </AppProvider>
   );

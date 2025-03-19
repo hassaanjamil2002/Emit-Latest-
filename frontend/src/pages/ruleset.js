@@ -45,10 +45,22 @@ const Ruleset = () => {
     axios.get('http://localhost:5000/api/rules')
       .then(response => {
         console.log("Fetched Rules:", response.data);
-        setRules(response.data);
+        
+        // The backend now returns an array with 'id' directly at the top level.
+        const formattedRules = response.data.map(rule => ({
+          id: rule.id,
+          level: rule.level,
+          description: rule.description,
+          matches: rule.matches.join(", "),
+          action: rule.action,
+          tags: rule.tags
+        }));
+  
+        setRules(formattedRules);
       })
       .catch(error => console.error('Error fetching rules:', error));
   }, []);
+  
 
   const handleInputChange = (e) => {
     setNewRule({ ...newRule, [e.target.name]: e.target.value });
