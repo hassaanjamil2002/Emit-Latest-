@@ -8,44 +8,24 @@ import NotificationImportantIcon from '@mui/icons-material/NotificationImportant
 import BarChartIcon from '@mui/icons-material/BarChart';
 import DescriptionIcon from '@mui/icons-material/Description';
 import LayersIcon from '@mui/icons-material/Layers';
-import axios from 'axios';
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { DataGridPro } from '@mui/x-data-grid-pro';
+import { Modal, Button } from '@mui/material';
+import axios from 'axios';
 import logo from '../components/logo.jpeg';
+
 // Sample data for the alerts table
 const columns = [
   { field: 'id', headerName: 'ID', width: 90 },
   { field: 'alertName', headerName: 'Alert Name', width: 200 },
-  { field: 'ruleName', headerName: 'Triggered Rule', width: 250 }, // New Column
+  { field: 'ruleName', headerName: 'Triggered Rule', width: 250 },
   { field: 'status', headerName: 'Status', width: 150 },
   { field: 'timestamp', headerName: 'Timestamp', width: 200 },
   { field: 'severity', headerName: 'Severity', width: 150 },
   { field: 'actionTaken', headerName: 'Action Taken', width: 250 },
 ];
-const rows = [
-    { id: 1, alertName: 'Suspicious Login', status: 'Active', timestamp: '2024-12-07 10:45', severity: 'High', actionTaken: 'Alert sent' },
-    { id: 2, alertName: 'Data Exfiltration', status: 'Resolved', timestamp: '2024-12-06 14:30', severity: 'Critical', actionTaken: 'Investigation completed' },
-    { id: 3, alertName: 'Unauthorized Access', status: 'Active', timestamp: '2024-12-07 09:15', severity: 'Medium', actionTaken: 'Access revoked' },
-    { id: 4, alertName: 'Phishing Attempt', status: 'Resolved', timestamp: '2024-12-05 16:00', severity: 'Low', actionTaken: 'User educated' },
-    { id: 5, alertName: 'Malware Detected', status: 'Active', timestamp: '2024-12-06 11:20', severity: 'Critical', actionTaken: 'Quarantine initiated' },
-    { id: 6, alertName: 'Brute Force Attack', status: 'Resolved', timestamp: '2024-12-04 23:45', severity: 'High', actionTaken: 'IP blocked' },
-    { id: 7, alertName: 'Suspicious Email', status: 'Active', timestamp: '2024-12-06 13:50', severity: 'Medium', actionTaken: 'Alert sent' },
-    { id: 8, alertName: 'Data Breach', status: 'Resolved', timestamp: '2024-12-03 10:00', severity: 'Critical', actionTaken: 'Incident reported' },
-    { id: 9, alertName: 'Insider Threat', status: 'Active', timestamp: '2024-12-07 07:30', severity: 'High', actionTaken: 'Access restricted' },
-    { id: 10, alertName: 'DDoS Attack', status: 'Resolved', timestamp: '2024-12-02 20:15', severity: 'Critical', actionTaken: 'Traffic mitigated' },
-    { id: 11, alertName: 'VPN Misuse', status: 'Active', timestamp: '2024-12-07 08:10', severity: 'Medium', actionTaken: 'Alert sent' },
-    { id: 12, alertName: 'Suspicious File Upload', status: 'Resolved', timestamp: '2024-12-05 17:45', severity: 'High', actionTaken: 'File deleted' },
-    { id: 13, alertName: 'Privilege Escalation', status: 'Active', timestamp: '2024-12-06 15:00', severity: 'Critical', actionTaken: 'Access revoked' },
-    { id: 14, alertName: 'Abnormal Traffic', status: 'Resolved', timestamp: '2024-12-04 09:30', severity: 'Medium', actionTaken: 'Traffic analyzed' },
-    { id: 15, alertName: 'Password Sharing', status: 'Active', timestamp: '2024-12-07 12:00', severity: 'Low', actionTaken: 'Policy reminder sent' },
-    { id: 16, alertName: 'Failed Login Attempts', status: 'Resolved', timestamp: '2024-12-06 19:20', severity: 'Medium', actionTaken: 'Password reset' },
-    { id: 17, alertName: 'Policy Violation', status: 'Active', timestamp: '2024-12-07 14:25', severity: 'High', actionTaken: 'Notification sent' },
-    { id: 18, alertName: 'Software Vulnerability', status: 'Resolved', timestamp: '2024-12-03 13:50', severity: 'Critical', actionTaken: 'Patch applied' },
-    { id: 19, alertName: 'Network Scan Detected', status: 'Active', timestamp: '2024-12-07 11:30', severity: 'Medium', actionTaken: 'IP blacklisted' },
-    { id: 20, alertName: 'Suspicious Behavior', status: 'Resolved', timestamp: '2024-12-04 18:40', severity: 'High', actionTaken: 'User monitored' },
-  ];
-  
+
 const NAVIGATION = [
   {
     kind: 'header',
@@ -72,7 +52,6 @@ const NAVIGATION = [
     segment: 'logs',
     title: 'Logs',
     icon: <BarChartIcon />,
-   
   },
   {
     segment: 'Ruleset',
@@ -81,7 +60,6 @@ const NAVIGATION = [
   },
   { segment: 'integrations', title: 'Integrations', icon: <DescriptionIcon /> },
 ];
-
 
 const demoTheme = createTheme({
   cssVariables: {
@@ -98,30 +76,110 @@ const demoTheme = createTheme({
     },
   },
 });
+
+// Modal Component for Alert Details
+const AlertDetailsModal = ({ open, handleClose, alert, onMarkAsSeen }) => {
+  return (
+    <Modal
+      open={open}
+      onClose={handleClose}
+      aria-labelledby="alert-details-modal-title"
+      aria-describedby="alert-details-modal-description"
+    >
+      <Box
+        sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: 400,
+          bgcolor: 'background.paper',
+          boxShadow: 24,
+          p: 4,
+        }}
+      >
+        <Typography id="alert-details-modal-title" variant="h6" component="h2">
+          Alert Details
+        </Typography>
+        <Typography id="alert-details-modal-description" sx={{ mt: 2 }}>
+          <strong>Alert Name:</strong> {alert.alertName}
+        </Typography>
+        <Typography sx={{ mt: 2 }}>
+          <strong>Rule Name:</strong> {alert.ruleName}
+        </Typography>
+        <Typography sx={{ mt: 2 }}>
+          <strong>Status:</strong> {alert.status}
+        </Typography>
+        <Typography sx={{ mt: 2 }}>
+          <strong>Timestamp:</strong> {alert.timestamp}
+        </Typography>
+        <Typography sx={{ mt: 2 }}>
+          <strong>Severity:</strong> {alert.severity}
+        </Typography>
+        <Typography sx={{ mt: 2 }}>
+          <strong>Action Taken:</strong> {alert.actionTaken}
+        </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => {
+            onMarkAsSeen(alert.id);
+            handleClose();
+          }}
+          sx={{ mt: 2 }}
+        >
+          Mark as Seen
+        </Button>
+      </Box>
+    </Modal>
+  );
+};
+
+// Alerts Content Component
 function AlertsContent() {
   const [pageSize, setPageSize] = useState(10);
   const [rows, setRows] = useState([]);
+  const [selectedAlert, setSelectedAlert] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/enforce-rules')
-      .then(response => {
-        console.log("Fetched alerts:", response.data);
-  
+    axios
+      .get('http://localhost:5000/api/enforce-rules')
+      .then((response) => {
+        console.log('Fetched alerts:', response.data);
+
         const formattedRows = response.data.map((alert, index) => ({
           id: index + 1,
           alertName: alert.rule.description || 'Unknown Alert',
-          ruleName: alert.rule.id || 'Unknown Rule',  // Displaying the rule name
-          status: 'Active', 
+          ruleName: alert.rule.id || 'Unknown Rule',
+          status: 'Active',
           timestamp: alert.log.timestamp || 'Unknown',
           severity: alert.rule.level || 'Unknown',
-          actionTaken: 'Alert Sent'
+          actionTaken: 'Alert Sent',
         }));
-  
+
         setRows(formattedRows);
       })
-      .catch(error => console.error('Error fetching alerts:', error));
+      .catch((error) => console.error('Error fetching alerts:', error));
   }, []);
-  
+
+  const handleRowClick = (params) => {
+    setSelectedAlert(params.row);
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+  };
+
+  const handleMarkAsSeen = (alertId) => {
+    setRows((prevRows) =>
+      prevRows.map((row) =>
+        row.id === alertId ? { ...row, actionTaken: 'Seen/Processed' } : row
+      )
+    );
+  };
+
   return (
     <Box
       sx={{
@@ -153,13 +211,22 @@ function AlertsContent() {
           pageSizeOptions={[5, 10, 25, 50]}
           onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
           sortingOrder={['asc', 'desc']}
+          onRowClick={handleRowClick}
         />
       </Box>
+      {selectedAlert && (
+        <AlertDetailsModal
+          open={modalOpen}
+          handleClose={handleCloseModal}
+          alert={selectedAlert}
+          onMarkAsSeen={handleMarkAsSeen}
+        />
+      )}
     </Box>
   );
 }
 
-// Logs Page (Placeholder for another section)
+// Logs Page (Placeholder)
 function LogsPage() {
   return (
     <Box
@@ -181,10 +248,9 @@ function LogsPage() {
   );
 }
 
-// Main layout for Alerts Page
+// Main Layout Component
 function AlertsPageLayout(props) {
   const { window } = props;
-
   const [activeSection, setActiveSection] = useState('alerts'); // Track active section
   const demoWindow = window !== undefined ? window() : undefined;
 
@@ -206,32 +272,36 @@ function AlertsPageLayout(props) {
   };
 
   return (
-   
     <AppProvider
-    logo={logo}
-    navigation={NAVIGATION.map(item => ({
-      ...item,
-      onClick: item.segment ? (event) => { event.preventDefault(); handleNavigation(item.segment); } : undefined,
-    }))}
-    theme={demoTheme}
-    window={demoWindow}
-    branding={{ 
-      logo: (
-        <Typography 
-          variant="h3" 
-          sx={{ 
-            fontFamily: "'Poppins', sans-serif", 
-            fontWeight: 'bold', 
-            padding: '5px 10px',  // Reduced padding from the top
-            marginTop: '-10px'    // Moves the text upward
-          }}
-        >
-          emit.
-        </Typography>
-      ), 
-      title: '' 
-    }}
-  >
+      logo={logo}
+      navigation={NAVIGATION.map((item) => ({
+        ...item,
+        onClick: item.segment
+          ? (event) => {
+              event.preventDefault();
+              handleNavigation(item.segment);
+            }
+          : undefined,
+      }))}
+      theme={demoTheme}
+      window={demoWindow}
+      branding={{
+        logo: (
+          <Typography
+            variant="h3"
+            sx={{
+              fontFamily: "'Poppins', sans-serif",
+              fontWeight: 'bold',
+              padding: '5px 10px',
+              marginTop: '-10px',
+            }}
+          >
+            emit.
+          </Typography>
+        ),
+        title: '',
+      }}
+    >
       <DashboardLayout>{renderContent()}</DashboardLayout>
     </AppProvider>
   );
